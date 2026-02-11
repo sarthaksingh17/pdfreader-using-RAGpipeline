@@ -1,163 +1,58 @@
-PDF RAG System
+## PDF RAG System
 
-A Retrieval-Augmented Generation (RAG) system that reads PDF documents, stores semantic embeddings in a vector database, and answers user queries using an LLM grounded in document context.
+This project implements a Retrieval-Augmented Generation (RAG) system that reads PDF documents and answers user queries using context retrieved from those documents.
 
-Overview
+### Overview
 
-This project implements a complete end-to-end RAG pipeline:
+The system allows users to ask natural language questions about a PDF. Instead of relying only on the LLM’s internal knowledge, the system retrieves relevant chunks from the document and uses them to generate grounded responses.
 
-Document ingestion
+### Pipeline
 
-Text chunking
+Data Ingestion
+Documents are loaded using TextLoader, DirectoryLoader, and PyMuPDFLoader.
+Each document is structured with page content and metadata for traceability.
 
-Embedding generation
+Chunking
+Large documents are split using RecursiveCharacterTextSplitter to improve retrieval accuracy and avoid token overflow.
 
-Vector storage using ChromaDB
+Embedding Generation
+Each chunk is converted into a vector using the SentenceTransformer model (all-MiniLM-L6-v2).
+Embedding logic is handled through a modular EmbeddingManager.
 
-Semantic retrieval
+Vector Storage
+Embeddings and metadata are stored in ChromaDB using a persistent client.
+This enables semantic similarity search over document content.
 
-LLM-based response generation
+Retrieval
+When a user asks a query:
 
-The system ensures answers are generated from retrieved document context rather than relying solely on the LLM’s internal knowledge.
+The query is converted into an embedding
 
-Architecture
-1. Data Ingestion
+The vector database is searched
 
-Documents are loaded using:
+Top relevant chunks are returned based on similarity score
 
-TextLoader
+Generation
+Retrieved context is inserted into a structured prompt and passed to a Groq LLM to generate a grounded answer.
 
-DirectoryLoader
 
-PyMuPDFLoader
+### Environment Variables
 
-Each document is structured as:
+API keys are stored in a .env file and are not hardcoded in the project.
+The .env file is excluded using .gitignore.
 
-Document(
-    page_content="...",
-    metadata={...}
-)
+Key Concepts Demonstrated
 
+-- End-to-end RAG architecture
 
-Metadata enables traceability and debugging.
+-- Semantic search with vector databases
 
-2. Chunking
+-- Embedding generation using transformers
 
-Uses RecursiveCharacterTextSplitter to:
+-- Context-grounded LLM responses
 
-Break large documents into smaller chunks
+-- Modular system design
 
-Improve semantic retrieval
+### Conclusion
 
-Prevent token overflow
-
-3. Embeddings
-
-Model: all-MiniLM-L6-v2
-
-Library: SentenceTransformers
-
-Output: 384-dimensional vectors
-
-Encapsulated in a modular EmbeddingManager.
-
-4. Vector Database
-
-Database: ChromaDB (PersistentClient)
-
-Stores:
-
-Document text
-
-Metadata
-
-Embeddings
-
-Enables semantic similarity search.
-
-5. Retrieval
-
-The RAGRetriever:
-
-Converts query to embedding
-
-Performs similarity search
-
-Filters by similarity threshold
-
-Returns top-k relevant chunks
-
-6. Generation
-
-LLM: Groq (via ChatGroq)
-
-Retrieved context is injected into a structured prompt
-
-LLM generates grounded response
-
-Project Structure
-data/
- ├── pdf/
- ├── text_files/
- └── vector_store/
-
-notebook/
- └── document.ipynb
-
-main.py
-requirements.txt
-README.md
-
-Example Usage
-answer = rag_simple(
-    "What is the flight number?",
-    rag_retriever,
-    llm
-)
-
-print(answer)
-
-Environment Setup
-
-API keys are managed securely using a .env file.
-
-Example:
-
-GROQ_API_KEY=your_api_key_here
-
-
-Make sure .env is added to .gitignore.
-
-Key Features
-
-Modular design (EmbeddingManager, VectorStore, Retriever)
-
-Persistent vector database
-
-Semantic similarity search
-
-Grounded LLM responses
-
-End-to-end RAG pipeline from scratch
-
-Why This Matters
-
-This project demonstrates:
-
-Understanding of RAG system design
-
-Vector database integration
-
-Embedding-based semantic search
-
-LLM orchestration with external knowledge
-
-Production-ready modular architecture
-
-If you'd like, I can also generate:
-
-A shorter recruiter-focused version
-
-A technical deep-dive version
-
-Or an interview explanation script tailored to this project
+This project demonstrates how to build a complete RAG pipeline from scratch — from document ingestion to retrieval and LLM-based response generation — using modern NLP tools and vector databases.
